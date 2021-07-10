@@ -24,17 +24,28 @@ namespace WeatherForecast.Controllers
         }
 
         [HttpGet]
-        public Forecast TomorrowWeather(string cityName)
+        public Object TomorrowWeather(string cityName)
         {
+            if (string.IsNullOrEmpty(cityName))
+            {
+                return "请填写城市名";
+            }
+
             var cityList = JsonConvert.DeserializeObject<List<CityEntity>>(_cityJson);
-            var city = cityList.Where(x => x.city_name.Contains(cityName) && !string.IsNullOrEmpty(x.city_code)).FirstOrDefault();
-           
+            var city = cityList.Where(x => x.city_name == cityName).FirstOrDefault();
+            if (city is null)
+            {
+                return "找不到该城市";
+            }
+
             var client = new RestClient("http://t.weather.itboy.net/api/weather/city/" + city.city_code);
             var request = new RestRequest(Method.GET);
             var response = client.Get(request);
-            var result = JsonConvert.DeserializeObject<WeatherForecastEntity>(response.Content);
 
-            return result.data.forecast[1];
+            var forecasts = JsonConvert.DeserializeObject<WeatherForecastEntity>(response.Content).data.forecast;
+            var result = forecasts.Select(x => new { x.high, x.low, x.notice }).ToList()[1];
+
+            return result;
         }
     }
 }
