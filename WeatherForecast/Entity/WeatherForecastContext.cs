@@ -12,5 +12,7 @@ namespace WeatherForecast.Entity
         public WeatherForecastContext(DbContextOptions<WeatherForecastContext> options) : base(options) { }
 
         public DbSet<StudentEntity> Student { get; set; }
+
+        public DbSet<CityEntity> City { get; set; }
     }
 }

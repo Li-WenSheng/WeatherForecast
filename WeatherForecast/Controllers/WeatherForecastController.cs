@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WeatherForecast.Entities;
+using WeatherForecast.Entity;
+using WeatherForecast.Model;
 
 namespace WeatherForecast.Controllers
 {
@@ -16,11 +17,13 @@ namespace WeatherForecast.Controllers
     {
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly string _cityJson;
+        private readonly WeatherForecastContext _context;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, WeatherForecastContext context)
         {
             _logger = logger;
             _cityJson = Utils.CityJson;
+            _context = context;
         }
 
         [HttpGet]
@@ -31,7 +34,7 @@ namespace WeatherForecast.Controllers
                 return "请填写城市名";
             }
 
-            var cityList = JsonConvert.DeserializeObject<List<CityEntity>>(_cityJson);
+            var cityList = JsonConvert.DeserializeObject<List<Model.CityEntity>>(_cityJson);
             var city = cityList.Where(x => x.city_name == cityName).FirstOrDefault();
             if (city is null)
             {
@@ -43,9 +46,10 @@ namespace WeatherForecast.Controllers
             var response = client.Get(request);
 
             var forecasts = JsonConvert.DeserializeObject<WeatherForecastEntity>(response.Content).data.forecast;
-            var result = forecasts.Select(x => new { x.high, x.low, x.notice }).ToList()[1];
 
-            return result;
+            var a = _context.City.Where(x => x.Name == cityName).FirstOrDefault();
+
+            return a;
         }
     }
 }

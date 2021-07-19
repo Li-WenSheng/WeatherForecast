@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WeatherForecast
+namespace WeatherForecast.Model
 {
     public class CityInfo
     {
