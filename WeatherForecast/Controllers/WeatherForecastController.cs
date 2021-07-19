@@ -16,13 +16,11 @@ namespace WeatherForecast.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly string _cityJson;
         private readonly WeatherForecastContext _context;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, WeatherForecastContext context)
         {
             _logger = logger;
-            _cityJson = Utils.CityJson;
             _context = context;
         }
 
@@ -34,22 +32,21 @@ namespace WeatherForecast.Controllers
                 return "请填写城市名";
             }
 
-            var cityList = JsonConvert.DeserializeObject<List<Model.CityEntity>>(_cityJson);
-            var city = cityList.Where(x => x.city_name == cityName).FirstOrDefault();
+            var city = _context.City.Where(x => x.Name == cityName).FirstOrDefault();
             if (city is null)
             {
                 return "找不到该城市";
             }
 
-            var client = new RestClient("http://t.weather.itboy.net/api/weather/city/" + city.city_code);
+            var client = new RestClient("http://t.weather.itboy.net/api/weather/city/" + city.Code);
             var request = new RestRequest(Method.GET);
             var response = client.Get(request);
 
-            var forecasts = JsonConvert.DeserializeObject<WeatherForecastEntity>(response.Content).data.forecast;
+            var forecasts = JsonConvert.DeserializeObject<WeatherForecastModel>(response.Content).data.forecast;
 
-            var a = _context.City.Where(x => x.Name == cityName).FirstOrDefault();
+            var result = forecasts.Select(x => new { x.high, x.low, x.notice }).ToList()[1];
 
-            return a;
+            return result;
         }
     }
 }

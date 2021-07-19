@@ -55,7 +55,7 @@ namespace WeatherForecast.Model
         public Yesterday yesterday { get; set; }
     }
 
-    public class WeatherForecastEntity
+    public class WeatherForecastModel
     {
         public string message { get; set; }
         public int status { get; set; }
